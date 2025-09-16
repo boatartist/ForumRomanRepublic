@@ -60,7 +60,10 @@ def register():
 @app.route('/forum/<id>', methods=['GET', 'POST'])
 @login_required
 def forum(id):
-    return render_template('forum.html', id, title, threads)
+    forum_object = sql_session.query(Forum).filter_by(id=id).first()
+    title = forum_object.get_title()
+    threads = forum_object.get_threads(sql_session)
+    return render_template('forum.html', id=id, title=title, threads=threads)
 
 @app.route('/thread/<id>', methods=['GET', 'POST'])
 @login_required

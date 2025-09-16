@@ -16,6 +16,9 @@ class Forum(Base):
   def get_id(self):
     return self.id
   
+  def get_title(self):
+    return self.title
+
   def get_threads(self, session):
     """
     Returns a list of threads in the forum, in the order that they were published.

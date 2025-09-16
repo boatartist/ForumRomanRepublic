@@ -21,7 +21,7 @@ cleopatra = User('cleopatra@pharaoh.com', 'nile379%', 'Cleopatra', 'Philopator',
 brutus = User('brutus@rome.com', 'etmoibrute11', 'Marcus', 'Brutus', 16, 1, 1) #added 101 to age to keep relative ages
 sql_session.add_all([caesar, cleopatra, brutus])
 sql_session.add(forum)
-sql_session.flush()
+sql_session.commit()
 app = Flask(__name__, static_folder='static', template_folder='static/templates') 
 app.secret_key = 'secret key' 
 app.permanent_session_lifetime = timedelta(minutes=60)  # Set session timeout 
@@ -52,8 +52,8 @@ def register():
         day = int(day)
         new_user = User(email, pwd, fname, lname, year, month, day)
         sql_session.add(new_user)
-        sql_session.flush()
-        session['user'] = sql_session.query(User).filter_by(fname=fname, lname=lname).first()
+        sql_session.commit()
+        session['user'] = sql_session.query(User).filter_by(fname=fname, lname=lname).first().get_id() #can only save user id, not full object
         return redirect('/')
     return render_template('register.html')
 

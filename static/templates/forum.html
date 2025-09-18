@@ -5,9 +5,12 @@
     <h1 class="page_title"> Forum </h1>
     <h2 class="user_name"></h2>
 
-    {% for post in threads %}
-        <a href="https://www.{{post.id}}.com" class="post_link"> post.title </a>
-    {% endfor %}
+    {% for thread in threads %}
+        <a href="./thread/{{thread['id']}}" class="post_link"> {{thread['title']}} </a>
+        <p>Created by {{ thread['owner_name'] }} on {{ thread['created_at'] }}</p>
+        <p>Tags: {{ thread['tags'] }}</p>
+        <p>First post: {{ thread['first_post_content'] }}</p>
+    {% endfor %}}
 
 
 

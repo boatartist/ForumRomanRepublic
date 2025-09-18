@@ -10,6 +10,9 @@ def hash_pwd(pwd):
     salt = 'ABC123#@!'
     return hashlib.sha256((pwd+salt).encode()).hexdigest()
 
+def find_user_from_id(id, session):
+    return session.query(User).filter_by(id=id).first()
+
 class User(Base):
     __tablename__ = 'user'
 

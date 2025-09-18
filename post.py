@@ -8,6 +8,9 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from datetime import datetime
 
+def find_post_from_id(id, session):
+  return session.query(Post).filter_by(id=id).first()
+
 class PostUpvotes(Base):
   __tablename__ = 'postupvotes'
 

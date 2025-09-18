@@ -15,22 +15,6 @@ engine = create_engine("sqlite:///forum.db")
 Session = sessionmaker(bind=engine)
 sql_session = Session()
 Base.metadata.create_all(engine)
-forum = Forum()
-caesar = User('caesar@rome.com', 'venividivici7', 'Julius', 'Caesar', 1, 7, 12) #technically born 100 BC but that doesn't work
-cleopatra = User('cleopatra@pharaoh.com', 'nile379%', 'Cleopatra', 'Philopator', 32, 1, 1) #added 101 to age to keep relative ages
-brutus = User('brutus@rome.com', 'etmoibrute11', 'Marcus', 'Brutus', 16, 1, 1) #added 101 to age to keep relative ages
-sql_session.add_all([caesar, cleopatra, brutus])
-sql_session.add(forum)
-sql_session.commit()
-caesar = sql_session.query(User).filter_by(lname="Caesar").first()
-first_post = Post('Vendi Vidi Vici', caesar)
-sql_session.add(first_post)
-sql_session.commit()
-thread = forum.publish('Battle of Zela', sql_session.query(Post).filter_by(content='Vendi Vidi Vici').first(), caesar)
-session.add(thread)
-print(thread.get_posts(session))
-session.flush()
-thread.set_tags(['battle', 'brag'], caesar)
 
 app = Flask(__name__, static_folder='static', template_folder='static/templates') 
 app.secret_key = 'secret key' 
@@ -100,4 +84,22 @@ def thread(id):
     return render_template('thread.html', id, title, posts)
 
 if __name__ == '__main__': 
+    forum = Forum()
+    caesar = User('caesar@rome.com', 'venividivici7', 'Julius', 'Caesar', 1, 7, 12) #technically born 100 BC but that doesn't work
+    cleopatra = User('cleopatra@pharaoh.com', 'nile379%', 'Cleopatra', 'Philopator', 32, 1, 1) #added 101 to age to keep relative ages
+    brutus = User('brutus@rome.com', 'etmoibrute11', 'Marcus', 'Brutus', 16, 1, 1) #added 101 to age to keep relative ages
+    sql_session.add(caesar)
+    sql_session.add(cleopatra)
+    sql_session.add(brutus)
+    sql_session.add(forum)
+    sql_session.commit()
+    caesar = sql_session.query(User).filter_by(lname="Caesar").first()
+    first_post = Post('Vendi Vidi Vici', caesar)
+    sql_session.add(first_post)
+    sql_session.commit()
+    thread = forum.publish('Battle of Zela', sql_session.query(Post).filter_by(content='Vendi Vidi Vici').first(), caesar)
+    sql_session.add(thread)
+    print(thread.get_posts(sql_session))
+    sql_session.flush()
+    thread.set_tags(['battle', 'brag'], caesar)
     app.run(debug=True) 

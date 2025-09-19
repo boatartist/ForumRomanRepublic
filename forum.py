@@ -24,6 +24,8 @@ class Forum(Base):
     Returns a list of threads in the forum, in the order that they were published.
     """
     threads = session.execute(select(Thread).where(Thread.forum_id == self.id)).all()
+    print(threads)
+    print(threads[0].get_id())
     return threads
   
   def publish(self, title, first_post, author):

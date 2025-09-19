@@ -10,11 +10,34 @@ from forum import Forum
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from base import Base
+import threading
 
 engine = create_engine("sqlite:///forum.db")
 Session = sessionmaker(bind=engine)
 sql_session = Session()
 Base.metadata.create_all(engine)
+
+# forum = Forum()
+# caesar = User('caesar@rome.com', 'venividivici7', 'Julius', 'Caesar', 1, 7, 12) #technically born 100 BC but that doesn't work
+# cleopatra = User('cleopatra@pharaoh.com', 'nile379%', 'Cleopatra', 'Philopator', 32, 1, 1) #added 101 to age to keep relative ages
+# brutus = User('brutus@rome.com', 'etmoibrute11', 'Marcus', 'Brutus', 16, 1, 1) #added 101 to age to keep relative ages
+# sql_session.add(caesar)
+# sql_session.add(cleopatra)
+# sql_session.add(brutus)
+# sql_session.add(forum)
+# sql_session.commit()
+forum = sql_session.query(Forum).first()
+caesar = sql_session.query(User).filter_by(lname="Caesar").first()
+first_post = Post('Vendi Vidi Vici', caesar)
+sql_session.add(first_post)
+sql_session.commit()
+thread = forum.publish('Battle of Zela', sql_session.query(Post).filter_by(content='Vendi Vidi Vici').first(), caesar)
+sql_session.add(thread)
+print(thread.get_posts(sql_session))
+sql_session.flush()
+thread.set_tags(['battle', 'brag'], caesar)
+sql_session.flush()
+sql_session.commit()
 
 app = Flask(__name__, static_folder='static', template_folder='static/templates') 
 app.secret_key = 'secret key' 
@@ -55,10 +78,16 @@ def register():
 @login_required
 def forum(id):
     forum_object = sql_session.query(Forum).filter_by(id=id).first()
+    if not forum_object:
+        return redirect('/')
     title = forum_object.get_title()
     threads = forum_object.get_threads(sql_session)
     dict_threads = []
+    print('threads:')
+    print(threads)
     for thread in threads:
+        print('loop 0')
+        print(thread)
         thread_stuff = {}
         thread_stuff['id'] = thread.get_id()
         thread_stuff['title'] = thread.get_title()
@@ -84,22 +113,23 @@ def thread(id):
     return render_template('thread.html', id, title, posts)
 
 if __name__ == '__main__': 
-    forum = Forum()
-    caesar = User('caesar@rome.com', 'venividivici7', 'Julius', 'Caesar', 1, 7, 12) #technically born 100 BC but that doesn't work
-    cleopatra = User('cleopatra@pharaoh.com', 'nile379%', 'Cleopatra', 'Philopator', 32, 1, 1) #added 101 to age to keep relative ages
-    brutus = User('brutus@rome.com', 'etmoibrute11', 'Marcus', 'Brutus', 16, 1, 1) #added 101 to age to keep relative ages
-    sql_session.add(caesar)
-    sql_session.add(cleopatra)
-    sql_session.add(brutus)
-    sql_session.add(forum)
-    sql_session.commit()
+    # forum = Forum()
+    # caesar = User('caesar@rome.com', 'venividivici7', 'Julius', 'Caesar', 1, 7, 12) #technically born 100 BC but that doesn't work
+    # cleopatra = User('cleopatra@pharaoh.com', 'nile379%', 'Cleopatra', 'Philopator', 32, 1, 1) #added 101 to age to keep relative ages
+    # brutus = User('brutus@rome.com', 'etmoibrute11', 'Marcus', 'Brutus', 16, 1, 1) #added 101 to age to keep relative ages
+    # sql_session.add(caesar)
+    # sql_session.add(cleopatra)
+    # sql_session.add(brutus)
+    # sql_session.add(forum)
+    # sql_session.commit()
+    forum = sql_session.query(Forum).first()
     caesar = sql_session.query(User).filter_by(lname="Caesar").first()
     first_post = Post('Vendi Vidi Vici', caesar)
-    sql_session.add(first_post)
-    sql_session.commit()
-    thread = forum.publish('Battle of Zela', sql_session.query(Post).filter_by(content='Vendi Vidi Vici').first(), caesar)
-    sql_session.add(thread)
-    print(thread.get_posts(sql_session))
-    sql_session.flush()
-    thread.set_tags(['battle', 'brag'], caesar)
+    #sql_session.add(first_post)
+    #sql_session.commit()
+    #thread = forum.publish('Battle of Zela', sql_session.query(Post).filter_by(content='Vendi Vidi Vici').first(), caesar)
+    #sql_session.add(thread)
+    #print(thread.get_posts(sql_session))
+    #sql_session.flush()
+    #thread.set_tags(['battle', 'brag'], caesar)
     app.run(debug=True) 
